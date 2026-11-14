@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -33,22 +34,22 @@ class BtcWidgetProvider : AppWidgetProvider() {
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
-        }
+        val pendingResult = try { goAsync() } catch (e: Exception) { null }
+        fetchAndUpdateAll(context, appWidgetManager, appWidgetIds, pendingResult)
         scheduleNextUpdate(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
         if (intent.action == "REFRESH_WIDGET" || intent.action == "AUTO_REFRESH_WIDGET") {
+            val pendingResult = try { goAsync() } catch (e: Exception) { null }
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, BtcWidgetProvider::class.java))
             if (ids.isNotEmpty()) {
-                for (id in ids) {
-                    updateAppWidget(context, manager, id)
-                }
+                fetchAndUpdateAll(context, manager, ids, pendingResult)
                 scheduleNextUpdate(context)
+            } else {
+                pendingResult?.finish()
             }
         }
     }
@@ -84,14 +85,16 @@ class BtcWidgetProvider : AppWidgetProvider() {
             alarmManager.cancel(getAutoRefreshIntent(context))
         }
 
-        fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            val views = RemoteViews(context.packageName, R.layout.widget_layout)
-
+        fun fetchAndUpdateAll(
+            context: Context,
+            appWidgetManager: AppWidgetManager,
+            appWidgetIds: IntArray,
+            pendingResult: BroadcastReceiver.PendingResult?
+        ) {
             val clickIntent = Intent(context, BtcWidgetProvider::class.java).apply { action = "REFRESH_WIDGET" }
             val clickPendingIntent = PendingIntent.getBroadcast(
                 context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.widget_root, clickPendingIntent)
 
             thread {
                 try {
@@ -125,29 +128,41 @@ class BtcWidgetProvider : AppWidgetProvider() {
                     val devFmt = DecimalFormat("+0.0;-0.0")
                     val timeFmt = SimpleDateFormat("a h:mm:ss", Locale.KOREA)
 
-                    views.setTextViewText(R.id.tv_fx, "US $1 = ₩${decFmt.format(fxRate)}")
-                    views.setTextViewText(R.id.tv_krw_price, "₩${intFmt.format(krwPrice)}")
-                    views.setTextViewText(R.id.tv_usdt_price, "$${decFmt.format(usdtPrice)}")
+                    for (appWidgetId in appWidgetIds) {
+                        val views = RemoteViews(context.packageName, R.layout.widget_layout)
+                        views.setOnClickPendingIntent(R.id.widget_root, clickPendingIntent)
 
-                    val changeText = "${signFmt.format(changeRate)}% (24시간)"
-                    views.setTextViewText(R.id.tv_change_24h, changeText)
-                    views.setTextColor(R.id.tv_change_24h, if (changeRate >= 0) Color.parseColor("#4FD1C5") else Color.parseColor("#FF6B6B"))
+                        views.setTextViewText(R.id.tv_fx, "US $1 = ₩${decFmt.format(fxRate)}")
+                        views.setTextViewText(R.id.tv_krw_price, "₩${intFmt.format(krwPrice)}")
+                        views.setTextViewText(R.id.tv_usdt_price, "$${decFmt.format(usdtPrice)}")
 
-                    views.setTextViewText(R.id.tv_fair, "$${intFmt.format(fairPrice)}")
-                    views.setTextViewText(R.id.tv_support, "$${intFmt.format(supportPrice)}")
-                    views.setTextViewText(R.id.tv_resist, "$${intFmt.format(resistPrice)}")
-                    views.setTextViewText(R.id.tv_dev, "${devFmt.format(deviation)}%")
+                        val changeText = "${signFmt.format(changeRate)}% (24시간)"
+                        views.setTextViewText(R.id.tv_change_24h, changeText)
+                        views.setTextColor(R.id.tv_change_24h, if (changeRate >= 0) Color.parseColor("#4FD1C5") else Color.parseColor("#FF6B6B"))
 
-                    views.setTextViewText(R.id.tv_1y_fair, "$${intFmt.format(fair1Y)}")
-                    views.setTextViewText(R.id.tv_1y_sup, "$${intFmt.format(sup1Y)}")
-                    views.setTextViewText(R.id.tv_2y_fair, "$${intFmt.format(fair2Y)}")
-                    views.setTextViewText(R.id.tv_2y_sup, "$${intFmt.format(sup2Y)}")
+                        views.setTextViewText(R.id.tv_fair, "$${intFmt.format(fairPrice)}")
+                        views.setTextViewText(R.id.tv_support, "$${intFmt.format(supportPrice)}")
+                        views.setTextViewText(R.id.tv_resist, "$${intFmt.format(resistPrice)}")
+                        views.setTextViewText(R.id.tv_dev, "${devFmt.format(deviation)}%")
 
-                    views.setTextViewText(R.id.tv_update_time, "실시간 자동갱신(30초): ${timeFmt.format(Date())}")
+                        views.setTextViewText(R.id.tv_1y_fair, "$${intFmt.format(fair1Y)}")
+                        views.setTextViewText(R.id.tv_1y_sup, "$${intFmt.format(sup1Y)}")
+                        views.setTextViewText(R.id.tv_2y_fair, "$${intFmt.format(fair2Y)}")
+                        views.setTextViewText(R.id.tv_2y_sup, "$${intFmt.format(sup2Y)}")
+
+                        views.setTextViewText(R.id.tv_update_time, "실시간 자동갱신(30초): ${timeFmt.format(Date())}")
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                    }
                 } catch (e: Exception) {
-                    views.setTextViewText(R.id.tv_update_time, "오류: ${e.message}")
+                    for (appWidgetId in appWidgetIds) {
+                        val views = RemoteViews(context.packageName, R.layout.widget_layout)
+                        views.setOnClickPendingIntent(R.id.widget_root, clickPendingIntent)
+                        views.setTextViewText(R.id.tv_update_time, "오류: ${e.message}")
+                        appWidgetManager.updateAppWidget(appWidgetId, views)
+                    }
+                } finally {
+                    pendingResult?.finish()
                 }
-                appWidgetManager.updateAppWidget(appWidgetId, views)
             }
         }
     }
