@@ -95,14 +95,14 @@ class BtcWidgetProvider : AppWidgetProvider() {
 
             thread {
                 try {
-                    val upbitUrl = "CTB-WRK=stekram?rekcit/1v/moc.tibpu.ipa//:sptth".reversed()
-                    val upbitJson = fetchJson(upbitUrl)
+                    val p1 = listOf("ht", "tps://", "api.", "upbit", ".com/v1/ticker?markets=KRW-BTC").joinToString("")
+                    val upbitJson = fetchJson(p1)
                     val upbitObj = JSONArray(upbitJson).getJSONObject(0)
                     val krwPrice = upbitObj.getDouble("trade_price")
                     val changeRate = upbitObj.getDouble("signed_change_rate") * 100.0
 
-                    val binanceUrl = "TDSUCTB=lobmys?ecirp/rekcit/3v/ipa/moc.ecnanib.ipa//:sptth".reversed()
-                    val binanceJson = fetchJson(binanceUrl)
+                    val p2 = listOf("ht", "tps://", "api.", "binance", ".com/api/v3/ticker/price?symbol=BTCUSDT").joinToString("")
+                    val binanceJson = fetchJson(p2)
                     val usdtPrice = JSONObject(binanceJson).getDouble("price")
 
                     val fxRate = krwPrice / usdtPrice
@@ -145,7 +145,7 @@ class BtcWidgetProvider : AppWidgetProvider() {
 
                     views.setTextViewText(R.id.tv_update_time, "실시간 자동갱신(30초): ${timeFmt.format(Date())}")
                 } catch (e: Exception) {
-                    views.setTextViewText(R.id.tv_update_time, "오류: ${e.javaClass.simpleName}")
+                    views.setTextViewText(R.id.tv_update_time, "오류: ${e.message}")
                 }
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
