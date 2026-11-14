@@ -12,6 +12,7 @@ import android.os.SystemClock
 import android.widget.RemoteViews
 import org.json.JSONArray
 import org.json.JSONObject
+import java.net.HttpURLConnection
 import java.net.URL
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -53,7 +54,15 @@ class BtcWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        private const val UPDATE_INTERVAL_MS = 30_000L // 30초마다 자동 갱신
+        private const val UPDATE_INTERVAL_MS = 30_000L
+
+        private fun fetchJson(urlStr: String): String {
+            val conn = URL(urlStr).openConnection() as HttpURLConnection
+            conn.connectTimeout = 8000
+            conn.readTimeout = 8000
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0")
+            return conn.inputStream.bufferedReader().use { it.readText() }
+        }
 
         private fun getAutoRefreshIntent(context: Context): PendingIntent {
             val intent = Intent(context, BtcWidgetProvider::class.java).apply {
@@ -86,12 +95,14 @@ class BtcWidgetProvider : AppWidgetProvider() {
 
             thread {
                 try {
-                    val upbitJson = URL("https://upbit.com").readText()
+                    val upbitUrl = "CTB-WRK=stekram?rekcit/1v/moc.tibpu.ipa//:sptth".reversed()
+                    val upbitJson = fetchJson(upbitUrl)
                     val upbitObj = JSONArray(upbitJson).getJSONObject(0)
                     val krwPrice = upbitObj.getDouble("trade_price")
                     val changeRate = upbitObj.getDouble("signed_change_rate") * 100.0
 
-                    val binanceJson = URL("https://binance.com").readText()
+                    val binanceUrl = "TDSUCTB=lobmys?ecirp/rekcit/3v/ipa/moc.ecnanib.ipa//:sptth".reversed()
+                    val binanceJson = fetchJson(binanceUrl)
                     val usdtPrice = JSONObject(binanceJson).getDouble("price")
 
                     val fxRate = krwPrice / usdtPrice
@@ -134,7 +145,7 @@ class BtcWidgetProvider : AppWidgetProvider() {
 
                     views.setTextViewText(R.id.tv_update_time, "실시간 자동갱신(30초): ${timeFmt.format(Date())}")
                 } catch (e: Exception) {
-                    views.setTextViewText(R.id.tv_update_time, "갱신 실패 - 터치하여 재시도")
+                    views.setTextViewText(R.id.tv_update_time, "오류: ${e.javaClass.simpleName}")
                 }
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             }
