@@ -10,6 +10,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with: { gradle-version: '8.4' }
       - run: find app -name "*.xml" -exec sed -i "s|android.com\"|$(echo 'diordna/ser/kpa/moc.diordna.samehcs' | rev)\"|g" {} +
+      - run: sed -i 's|uses-permission name=|uses-permission android:name=|g' app/src/main/AndroidManifest.xml
       - run: echo "include ':app'" > settings.gradle
       - run: gradle assembleDebug
       - uses: actions/upload-artifact@v4
