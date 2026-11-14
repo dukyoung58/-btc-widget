@@ -1,1 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://android.com"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1E1B2E"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tv_fx"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:text="US $1 = ₩1,336.2"
+        android:textColor="#80B3FF"
+        android:textSize="9sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="₿ 비트코인 실시간 시세"
+        android:textColor="#F5A623"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="• 업비트 (KRW)"
+        android:textColor="#A0A0B8"
+        android:textSize="9sp" />
+
+    <TextView
+        android:id="@+id/tv_krw_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="로딩 중..."
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="• 바이낸스 (USDT)"
+        android:textColor="#A0A0B8"
+        android:textSize="9sp" />
+
+    <TextView
+        android:id="@+id/tv_usdt_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="$0.0"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_change_24h"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:background="#2D2842"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="2dp"
+        android:text="0.00% (24시간)"
+        android:textColor="#FF6B6B"
+        android:textSize="10sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Power Law 모델 (실시간 계산)"
+        android:textColor="#F5A623"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="3dp"
+            android:layout_weight="1"
+            android:background="#28243D"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="FAIR PRICE" android:textColor="#A0A0B8" android:textSize="8sp" />
+            <TextView android:id="@+id/tv_fair" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#4FD1C5" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_weight="1"
+            android:background="#28243D"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SUPPORT PRICE" android:textColor="#A0A0B8" android:textSize="8sp" />
+            <TextView android:id="@+id/tv_support" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#FF6B6B" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="3dp"
+            android:layout_weight="1"
+            android:background="#28243D"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RESISTANCE PRICE" android:textColor="#A0A0B8" android:textSize="8sp" />
+            <TextView android:id="@+id/tv_resist" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#B794F4" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_weight="1"
+            android:background="#28243D"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="DEVIATION" android:textColor="#A0A0B8" android:textSize="8sp" />
+            <TextView android:id="@+id/tv_dev" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.0%" android:textColor="#4FD1C5" android:textSize="12sp" android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="3dp"
+            android:layout_weight="1"
+            android:background="#28243D"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1년 후 Fair &amp; Support" android:textColor="#A0A0B8" android:textSize="8sp" />
+            <TextView android:id="@+id/tv_1y_fair" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#4FD1C5" android:textSize="11sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tv_1y_sup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#FF6B6B" android:textSize="10sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="3dp"
+            android:layout_weight="1"
+            android:background="#28243D"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="5dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="2년 후 Fair &amp; Support" android:textColor="#A0A0B8" android:textSize="8sp" />
+            <TextView android:id="@+id/tv_2y_fair" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#4FD1C5" android:textSize="11sp" android:textStyle="bold" />
+            <TextView android:id="@+id/tv_2y_sup" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$0" android:textColor="#FF6B6B" android:textSize="10sp" android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_update_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="터치하여 새로고침"
+        android:textColor="#6C6C80"
+        android:textSize="8sp" />
+</LinearLayout>
 
