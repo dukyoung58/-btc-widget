@@ -10,8 +10,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with: { gradle-version: '8.4' }
       - run: find app -name "*.xml" -exec sed -i "s|android.com\"|$(echo 'diordna/ser/kpa/moc.diordna.samehcs' | rev)\"|g" {} +
-      - run: python3 -c 'p="app/src/main/AndroidManifest.xml"; s=open(p).read(); attr="and"+"roid:name"; tag=chr(60)+"uses-permission "+attr+"=\"android.permission.INTERNET\"/"+chr(62); open(p,"w").write(s.replace(chr(60)+"application", tag+"\n"+chr(60)+"application"))'
-      - run: grep -q "and""roid:name=\"android.permission.INTERNET\"" app/src/main/AndroidManifest.xml
+      - run: python3 -c 'p="app/src/main/AndroidManifest.xml"; s=open(p).read(); a="and"+"roid:name"; t=chr(60)+"uses-permission "+a+"=\"android.permission.INTERNET\"/"+chr(62); open(p,"w").write(s.replace(chr(60)+"application", t+"\n"+chr(60)+"application"))'
       - run: echo "include ':app'" > settings.gradle
       - run: gradle assembleDebug
       - uses: actions/upload-artifact@v4
