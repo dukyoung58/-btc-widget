@@ -1,5 +1,6 @@
 package com.my.btcwidget
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -7,6 +8,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.SystemClock
 import android.widget.RemoteViews
 import org.json.JSONArray
 import org.json.JSONObject
@@ -19,30 +21,68 @@ import kotlin.math.pow
 
 class BtcWidgetProvider : AppWidgetProvider() {
 
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        scheduleNextUpdate(context)
+    }
+
+    override fun onDisabled(context: Context) {
+        super.onDisabled(context)
+        cancelUpdate(context)
+    }
+
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         for (appWidgetId in appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId)
         }
+        scheduleNextUpdate(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        if (intent.action == "REFRESH_WIDGET") {
+        if (intent.action == "REFRESH_WIDGET" || intent.action == "AUTO_REFRESH_WIDGET") {
             val manager = AppWidgetManager.getInstance(context)
             val ids = manager.getAppWidgetIds(ComponentName(context, BtcWidgetProvider::class.java))
-            onUpdate(context, manager, ids)
+            if (ids.isNotEmpty()) {
+                for (id in ids) {
+                    updateAppWidget(context, manager, id)
+                }
+                scheduleNextUpdate(context)
+            }
         }
     }
 
     companion object {
+        private const val UPDATE_INTERVAL_MS = 30_000L // 30초마다 자동 갱신
+
+        private fun getAutoRefreshIntent(context: Context): PendingIntent {
+            val intent = Intent(context, BtcWidgetProvider::class.java).apply {
+                action = "AUTO_REFRESH_WIDGET"
+            }
+            return PendingIntent.getBroadcast(
+                context, 1001, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        }
+
+        fun scheduleNextUpdate(context: Context) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val triggerTime = SystemClock.elapsedRealtime() + UPDATE_INTERVAL_MS
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME, triggerTime, getAutoRefreshIntent(context))
+        }
+
+        fun cancelUpdate(context: Context) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.cancel(getAutoRefreshIntent(context))
+        }
+
         fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.widget_layout)
 
-            val intent = Intent(context, BtcWidgetProvider::class.java).apply { action = "REFRESH_WIDGET" }
-            val pendingIntent = PendingIntent.getBroadcast(
-                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            val clickIntent = Intent(context, BtcWidgetProvider::class.java).apply { action = "REFRESH_WIDGET" }
+            val clickPendingIntent = PendingIntent.getBroadcast(
+                context, 0, clickIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.widget_root, pendingIntent)
+            views.setOnClickPendingIntent(R.id.widget_root, clickPendingIntent)
 
             thread {
                 try {
@@ -92,7 +132,7 @@ class BtcWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.tv_2y_fair, "$${intFmt.format(fair2Y)}")
                     views.setTextViewText(R.id.tv_2y_sup, "$${intFmt.format(sup2Y)}")
 
-                    views.setTextViewText(R.id.tv_update_time, "마지막 업데이트: ${timeFmt.format(Date())} (터치 시 갱신)")
+                    views.setTextViewText(R.id.tv_update_time, "실시간 자동갱신(30초): ${timeFmt.format(Date())}")
                 } catch (e: Exception) {
                     views.setTextViewText(R.id.tv_update_time, "갱신 실패 - 터치하여 재시도")
                 }
