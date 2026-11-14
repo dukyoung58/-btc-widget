@@ -10,8 +10,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with: { gradle-version: '8.4' }
       - run: find app -name "*.xml" -exec sed -i "s|android.com\"|$(echo 'diordna/ser/kpa/moc.diordna.samehcs' | rev)\"|g" {} +
-      - run: sed -i "s|https://upbit.com\"|$(echo 'CTB-WRK=stekram?rekcit/1v/moc.tibpu.ipa//:sptth' | rev)\"|g" app/src/main/java/com/my/btcwidget/BtcWidgetProvider.kt
-      - run: sed -i "s|https://binance.com\"|$(echo 'TDSUCTB=lobmys?ecirp/rekcit/3v/ipa/moc.ecnanib.ipa//:sptth' | rev)\"|g" app/src/main/java/com/my/btcwidget/BtcWidgetProvider.kt
+      - run: sed -i "s|URL(\"[^\"]*upbit[^\"]*\")|URL(\"$(echo 'CTB-WRK=stekram?rekcit/1v/moc.tibpu.ipa//:sptth' | rev)\")|g" app/src/main/java/com/my/btcwidget/BtcWidgetProvider.kt
+      - run: sed -i "s|URL(\"[^\"]*binance[^\"]*\")|URL(\"$(echo 'TDSUCTB=lobmys?ecirp/rekcit/3v/ipa/moc.ecnanib.ipa//:sptth' | rev)\")|g" app/src/main/java/com/my/btcwidget/BtcWidgetProvider.kt
       - run: echo "include ':app'" > settings.gradle
       - run: gradle assembleDebug
       - uses: actions/upload-artifact@v4
