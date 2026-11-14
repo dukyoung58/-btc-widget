@@ -9,12 +9,15 @@ jobs:
         with: { distribution: 'temurin', java-version: '17' }
       - uses: gradle/actions/setup-gradle@v3
         with: { gradle-version: '8.4' }
-      - name: Fix XML namespaces
+      - name: Auto Fix URLs
         run: |
-          NS="http://android.com""/apk/res/android"
-          sed -i "s|xmlns:android=\"[^\"]*\"|xmlns:android=\"$NS\"|g" app/src/main/AndroidManifest.xml
-          sed -i "s|xmlns:android=\"[^\"]*\"|xmlns:android=\"$NS\"|g" app/src/main/res/layout/widget_layout.xml
-          sed -i "s|xmlns:android=\"[^\"]*\"|xmlns:android=\"$NS\"|g" app/src/main/res/xml/widget_info.xml
+          python3 -c '
+          import glob
+          u = "ht" + "tp://schemas." + "://android.com"
+          for p in glob.glob("app/src/main/**/*.xml", recursive=True):
+              s = open(p).read().replace("http://android.com", u)
+              open(p, "w").write(s)
+          '
       - run: echo "include ':app'" > settings.gradle
       - run: gradle assembleDebug
       - uses: actions/upload-artifact@v4
